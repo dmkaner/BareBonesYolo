@@ -16,26 +16,20 @@ import sys
 import stomp
 
 
-def get_test_input(input_dim, CUDA):
-    img = cv2.imread("imgs/dog-cycle-car.png")
-    img = cv2.resize(img, (input_dim, input_dim)) 
-    img_ =  img[:,:,::-1].transpose((2,0,1))
-    img_ = img_[np.newaxis,:,:,:]/255.0
-    img_ = torch.from_numpy(img_).float()
-    img_ = Variable(img_)
+# def get_test_input(input_dim, CUDA):
+#     img = cv2.imread("imgs/dog-cycle-car.png")
+#     img = cv2.resize(img, (input_dim, input_dim)) 
+#     img_ =  img[:,:,::-1].transpose((2,0,1))
+#     img_ = img_[np.newaxis,:,:,:]/255.0
+#     img_ = torch.from_numpy(img_).float()
+#     img_ = Variable(img_)
     
-    if CUDA:
-        img_ = img_.cuda()
+#     if CUDA:
+#         img_ = img_.cuda()
     
-    return img_
+#     return img_
 
 def prep_image(img, inp_dim):
-    """
-    Prepare image for inputting to the neural network. 
-    
-    Returns a Variable 
-    """
-
     orig_im = img
     dim = orig_im.shape[1], orig_im.shape[0]
     img = (letterbox_image(orig_im, (inp_dim, inp_dim)))
@@ -55,28 +49,11 @@ def write(conn, x, img):
     cv2.rectangle(img, c1, c2,color, -1)
     cv2.putText(img, label, (c1[0], c1[1] + t_size[1] + 4), cv2.FONT_HERSHEY_PLAIN, 1, [225,255,255], 1);
 
-    output_to_activemq(conn, label)	
+    print(label)	
 
     return img
 
-def output_to_activemq(conn, label):
-    #if(determine_threat(label)):
-        #conn.send(body=''.join(("THREAT DETECTED:", label)), destination='/queue/test')
-    conn.send(body=''.join(label), destination='/queue/test')
-
-def determine_threat(label):
-    threats = ['person','aeroplane','truck','bear','car','dog','boat']
-    if(label in threats):
-        return True
-    return False 
-
 def arg_parse():
-    """
-    Parse arguements to the detect module
-    
-    """
-    
-    
     parser = argparse.ArgumentParser(description='YOLO v3 Video Detection Module')
    
     parser.add_argument("--video", dest = 'video', help = 
